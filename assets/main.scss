@@ -1,0 +1,28 @@
+$size: 40px;
+$borderColor: #78abff;
+$snakeColor: red;
+
+.grid {
+  display: inline-flex;
+  flex-direction: column;
+  border: 3px solid $borderColor;
+}
+
+.row {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.cell {
+  text-align: center;
+  width: $size;
+  height: $size;
+  display: inline-block;
+  border: 1px solid $borderColor;
+  &.snake {
+    background-color: $snakeColor;
+  }
+  &.food {
+    background-color: green;
+  }
+}
