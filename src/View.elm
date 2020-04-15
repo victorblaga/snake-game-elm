@@ -3,13 +3,17 @@ module View exposing (view)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (attribute, class, classList)
 import Types exposing (Cell, Model, Msg(..))
-import Utils exposing (isPartOfSnake, cellsAreEqual)
+import Utils exposing (cellsAreEqual, isPartOfSnake)
 
 
 view : Model -> Html Msg
-view model =
+view ({ gameOver } as model) =
     div
-        [ class "grid" ]
+        [ classList
+            [ ( "grid", True )
+            , ( "game-over", gameOver )
+            ]
+        ]
         (createRows model)
 
 
@@ -32,7 +36,8 @@ createRow rowIndex ({ halfSize } as model) =
 createCells : Int -> Model -> List (Html Msg)
 createCells rowIndex ({ halfSize } as model) =
     List.map
-        (\colIndex -> createCell ( rowIndex, colIndex ) model) -- <-- Pass the model
+        (\colIndex -> createCell ( rowIndex, colIndex ) model)
+        -- <-- Pass the model
         (List.range -halfSize halfSize)
 
 
@@ -45,7 +50,7 @@ createCell cell { snake, food } =
         cellClasses =
             [ ( "cell", True )
             , ( "snake", isPartOfSnake cell snake )
-            , ( "food", cellsAreEqual cell food)
+            , ( "food", cellsAreEqual cell food )
             ]
     in
     div

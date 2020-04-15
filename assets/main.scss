@@ -1,11 +1,15 @@
 $size: 40px;
 $borderColor: #78abff;
 $snakeColor: red;
+$gameOverColor: red;
 
 .grid {
   display: inline-flex;
   flex-direction: column;
   border: 3px solid $borderColor;
+  &.game-over {
+    border-color: $gameOverColor;
+  }
 }
 
 .row {

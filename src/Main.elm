@@ -21,10 +21,10 @@ main =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions { currentDirection, timerStatus } =
+subscriptions { currentDirection, timerStatus, gameOver } =
     Sub.batch
         [ onKeyDown keyHandler
-        , timer timerStatus currentDirection
+        , timer gameOver timerStatus currentDirection
         ]
 
 
@@ -33,14 +33,17 @@ tickMillis =
     1000.0
 
 
-timer : TimerStatus -> Direction -> Sub Msg
-timer timerStatus currentDirection =
-    case timerStatus of
-        Off ->
-            Sub.none
+timer : Bool -> TimerStatus -> Direction -> Sub Msg
+timer gameOver timerStatus currentDirection =
+    if gameOver then
+        Sub.none
+    else
+        case timerStatus of
+            Off ->
+                Sub.none
 
-        On ->
-            Time.every tickMillis (createTimerMsg currentDirection)
+            On ->
+                Time.every tickMillis (createTimerMsg currentDirection)
 
 
 keyHandler : Decoder Msg
@@ -72,29 +75,42 @@ update msg ({ halfSize, snake } as model) =
 
 
 onMovementKey : Model -> Direction -> ( Model, Cmd Msg )
-onMovementKey ({ snake, currentDirection } as model) newDirection =
+onMovementKey ({ currentDirection, halfSize } as model) newDirection =
     if isValidDirection newDirection currentDirection then
         let
-            newSnake =
-                moveSnake snake newDirection
+            (newSnake, willEat, gameOver) =
+                moveSnake model newDirection
         in
         ( { model
         | snake = newSnake
         , currentDirection = newDirection
         , timerStatus = Off
+        , gameOver = gameOver
         }
-    , Task.perform identity (Task.succeed StartMovementTimer)
+    , Cmd.batch
+        [ timerCmd
+        , foodCmd willEat halfSize ]
     )
 
     else
         ( model, Cmd.none )
 
 onMovementTimer : Model -> Direction -> ( Model, Cmd Msg )
-onMovementTimer ({ snake } as model) newDirection =
+onMovementTimer ({ halfSize } as model) newDirection =
     let
-        newSnake =
-            moveSnake snake newDirection
+        (newSnake, willEat, gameOver) =
+            moveSnake model newDirection
     in
-    ( { model | snake = newSnake }
-    , Cmd.none
+    ( { model | snake = newSnake, gameOver = gameOver }
+    , foodCmd willEat halfSize
     )
+
+timerCmd : Cmd Msg
+timerCmd = Task.perform identity (Task.succeed StartMovementTimer)
+
+foodCmd : Bool -> Int -> Cmd Msg
+foodCmd willEat halfSize =
+    if willEat then
+        createRandomFood halfSize
+    else
+        Cmd.none

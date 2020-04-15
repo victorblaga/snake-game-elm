@@ -9,6 +9,7 @@ type alias Model =
     , food : Food
     , currentDirection : Direction
     , timerStatus : TimerStatus
+    , gameOver : Bool
     }
 
 

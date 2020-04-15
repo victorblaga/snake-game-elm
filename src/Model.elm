@@ -23,6 +23,7 @@ init _ =
       , food = ( 0, 0 )
       , currentDirection = None
       , timerStatus = Off
+      , gameOver = False
       }
     , createRandomFood 5
     )
